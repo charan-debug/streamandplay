@@ -39,7 +39,9 @@ def audio_to_html_audio(audio):
 
 # Streamlit app
 def main():
-    st.title("YouTube Video Downloader and Player")
+    #st.title("YouTube Video Downloader and Player")
+    st.title("Sairam")
+    
     view_video = st.sidebar.checkbox("View Video", False)
 
     # Input query

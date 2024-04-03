@@ -2,3 +2,4 @@ pydub
 youtube-search-python
 ipython
 streamlit
+pytube

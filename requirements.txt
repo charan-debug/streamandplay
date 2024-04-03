@@ -2,4 +2,4 @@ pydub
 youtube-search-python
 ipython
 streamlit
-pytube
+git+https://github.com/nficano/pytube.git

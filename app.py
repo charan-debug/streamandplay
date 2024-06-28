@@ -23,7 +23,7 @@ def download_video_from_link(link):
         return None, None
 
 # Streamlit App
-st.title("YouTube Video Downloader and Player")
+st.title("UNIVERSAL STUDIOS")
 
 # Input YouTube link
 link = st.text_input("Enter the YouTube video link:")

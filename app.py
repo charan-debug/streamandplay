@@ -59,18 +59,22 @@ if st.button("Search"):
         for i, video in enumerate(results['result']):
             st.write(f"{i + 1}. {video['title']} ({video['link']})")
 
-        choice = st.number_input("Enter the number of the video you want to download and play:", min_value=1, max_value=len(results['result']))
+        choice = st.text_input("Enter the number of the video you want to download and play:")
 
-        if 0 < choice <= len(results['result']):
-            video_title, downloaded_file, video_link = download_video(results, choice - 1)
-            if downloaded_file:
-                audio = AudioSegment.from_file(downloaded_file)
-                st.write(audio_to_html_audio(audio), unsafe_allow_html=True)
-                st.write("Video Link:", video_link)
-                os.remove(downloaded_file)  # Clean up the downloaded file
+        if choice.isdigit():
+            choice = int(choice)
+            if 0 < choice <= len(results['result']):
+                video_title, downloaded_file, video_link = download_video(results, choice - 1)
+                if downloaded_file:
+                    audio = AudioSegment.from_file(downloaded_file)
+                    st.write(audio_to_html_audio(audio), unsafe_allow_html=True)
+                    st.write("Video Link:", video_link)
+                    os.remove(downloaded_file)  # Clean up the downloaded file
+                else:
+                    st.error("Failed to download the video.")
             else:
-                st.error("Failed to download the video.")
+                st.error("Invalid choice.")
         else:
-            st.error("Invalid choice.")
+            st.error("Please enter a valid number.")
     else:
         st.error("No search results found.")

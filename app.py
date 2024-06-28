@@ -4,6 +4,8 @@ from youtubesearchpython import VideosSearch
 from pydub import AudioSegment
 import base64
 import os
+from moviepy.editor import VideoFileClip, concatenate_videoclips
+from base64 import b64encode
 
 # Function to search for a video on YouTube and return search results
 def search_youtube(query):
@@ -66,9 +68,10 @@ if st.button("Search"):
             if 0 < choice <= len(results['result']):
                 video_title, downloaded_file, video_link = download_video(results, choice - 1)
                 if downloaded_file:
-                    audio = AudioSegment.from_file(downloaded_file)
-                    st.write(audio_to_html_audio(audio), unsafe_allow_html=True)
-                    st.write("Video Link:", video_link)
+                    st.success(f"Video saved to {downloaded_file}")
+                    mp4 = open(downloaded_file, 'rb').read()
+                    data_url = "data:video/mp4;base64," + b64encode(mp4).decode()
+                    st.video(data_url)
                     os.remove(downloaded_file)  # Clean up the downloaded file
                 else:
                     st.error("Failed to download the video.")

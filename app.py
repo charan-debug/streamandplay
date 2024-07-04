@@ -30,13 +30,13 @@ def download_video_from_link(link):
         return None, None
 
 # Streamlit App
-st.title("YouTube Video Downloader and Player")
+st.title("Sign language internpreter")
 
 # Input YouTube link or search query
 tab1, tab2 = st.tabs(["Search YouTube", "Direct Download"])
 
 with tab1:
-    query = st.text_input("Enter a keyword to search for YouTube videos:")
+    query = st.text_input("Enter a keyword to search:")
     if st.button("Search"):
         if query:
             results = search_youtube(query)
@@ -51,7 +51,7 @@ with tab1:
             st.error("Please enter a keyword to search.")
 
 with tab2:
-    link = st.text_input("Enter the YouTube video link:")
+    link = st.text_input("Enter the video link:")
     if st.button("Download and Play"):
         if link:
             video_title, downloaded_file = download_video_from_link(link)

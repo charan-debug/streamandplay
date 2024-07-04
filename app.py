@@ -33,7 +33,7 @@ def download_video_from_link(link):
 st.title("Sign language interpreter")
 
 # Input YouTube link or search query
-tab1, tab2 = st.tabs(["Search YouTube", "Direct Download"])
+tab1, tab2 = st.tabs(["Search", "Direct Download"])
 
 with tab1:
     query = st.text_input("Enter a keyword to search:")

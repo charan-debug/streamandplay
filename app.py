@@ -30,7 +30,7 @@ def download_video_from_link(link):
         return None, None
 
 # Streamlit App
-st.title("Sign language internpreter")
+st.title("Sign language interpreter")
 
 # Input YouTube link or search query
 tab1, tab2 = st.tabs(["Search YouTube", "Direct Download"])

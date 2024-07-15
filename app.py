@@ -1,8 +1,8 @@
 import streamlit as st
-from pytube import YouTube
 from youtubesearchpython import VideosSearch
 import base64
 import os
+import yt_dlp
 
 # Function to search for a video on YouTube and return search results
 def search_youtube(query):
@@ -10,27 +10,28 @@ def search_youtube(query):
     results = video_search.result()
     return results
 
-# Function to download a video from a YouTube link
+# Function to download a video from a YouTube link using yt-dlp
 def download_video_from_link(link):
     try:
-        # Create a YouTube object
-        yt = YouTube(link)
-
-        # Get the highest resolution stream (you can modify this)
-        stream = yt.streams.get_highest_resolution()
-
-        # Download the video
-        downloaded_file_path = stream.download(filename='downloaded_video.mp4')
-
-        # Return the downloaded video's file path
-        return yt.title, downloaded_file_path
+        ydl_opts = {
+            'format': 'best',
+            'outtmpl': 'downloaded_video.mp4',
+        }
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([link])
+        
+        # Check if the file was downloaded
+        if os.path.exists('downloaded_video.mp4'):
+            return 'downloaded_video.mp4'
+        else:
+            return None
 
     except Exception as e:
         st.error(f"Error: {e}")
-        return None, None
+        return None
 
 # Streamlit App
-st.title("Sign language interpreter")
+st.title("Sign Language Interpreter")
 
 # Input YouTube link or search query
 tab1, tab2 = st.tabs(["Search", "Direct Download"])
@@ -54,7 +55,7 @@ with tab2:
     link = st.text_input("Enter the video link:")
     if st.button("Download and Play"):
         if link:
-            video_title, downloaded_file = download_video_from_link(link)
+            downloaded_file = download_video_from_link(link)
             if downloaded_file:
                 st.success(f"Video saved to {downloaded_file}")
                 mp4 = open(downloaded_file, 'rb').read()

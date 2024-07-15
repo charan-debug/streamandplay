@@ -4,3 +4,4 @@ ipython
 streamlit
 git+https://github.com/nficano/pytube.git
 moviepy
+pytube

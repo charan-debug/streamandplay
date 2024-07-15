@@ -3,6 +3,12 @@ from youtubesearchpython import VideosSearch
 import base64
 import os
 import yt_dlp
+import shutil
+
+# Function to check if there's enough disk space
+def check_disk_space():
+    total, used, free = shutil.disk_usage("/")
+    return free > 100 * 1024 * 1024  # Check if there's at least 100MB of free space
 
 # Function to search for a video on YouTube and return search results
 def search_youtube(query):
@@ -13,6 +19,11 @@ def search_youtube(query):
 # Function to download a video from a YouTube link using yt-dlp
 def download_video_from_link(link):
     try:
+        # Check disk space
+        if not check_disk_space():
+            st.error("Not enough disk space.")
+            return None
+
         ydl_opts = {
             'format': 'best',
             'outtmpl': 'downloaded_video.mp4',
@@ -26,8 +37,14 @@ def download_video_from_link(link):
         else:
             return None
 
+    except yt_dlp.utils.DownloadError as e:
+        st.error(f"Download error: {e}")
+        return None
+    except PermissionError as e:
+        st.error(f"Permission error: {e}")
+        return None
     except Exception as e:
-        st.error(f"Error: {e}")
+        st.error(f"An unexpected error occurred: {e}")
         return None
 
 # Streamlit App

@@ -1,5 +1,5 @@
-import streamlit as st
 import yt_dlp
+import streamlit as st
 from IPython.display import Audio
 
 def search_youtube(query):
@@ -23,23 +23,21 @@ def play_audio(url):
         audio_file = ydl.prepare_filename(info_dict)
     return audio_file
 
-# Streamlit App
-st.title("YouTube Audio Player")
+# Streamlit app
+st.title("sairam")
 
 query = st.text_input("Enter the song name:")
 if query:
     results = search_youtube(query)
-    
     if results:
         st.write("Top 8 results:")
-        for i, result in enumerate(results):
-            st.write(f"{i + 1}. {result['title']}")
+        titles = [result['title'] for result in results]
+        choice = st.radio("Choose a song to play:", titles)
         
-        choice = st.slider("Select the song number to play", 1, len(results), 1)
-        selected_url = results[choice - 1]['webpage_url']
-        
-        if st.button("Play Audio"):
-            audio_file = play_audio(selected_url)
-            st.audio(audio_file)
+        if st.button("Play"):
+            selected_result = results[titles.index(choice)]
+            audio_file = play_audio(selected_result['webpage_url'])
+            audio_bytes = open(audio_file, 'rb').read()
+            st.audio(audio_bytes, format='audio/mp3')
     else:
         st.write("No results found.")

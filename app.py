@@ -1,43 +1,45 @@
 import streamlit as st
-from pytube import YouTube
-import base64
-import os
+import yt_dlp
+from IPython.display import Audio
 
-# Function to download a video from a YouTube link
-def download_video_from_link(link):
-    try:
-        # Create a YouTube object
-        yt = YouTube(link)
+def search_youtube(query):
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'noplaylist': True,
+        'quiet': True,
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        search_result = ydl.extract_info(f"ytsearch8:{query}", download=False)['entries']
+        return search_result
 
-        # Get the highest resolution stream (you can modify this)
-        stream = yt.streams.get_highest_resolution()
-
-        # Download the video
-        downloaded_file_path = stream.download(filename='downloaded_video.mp4')
-
-        # Return the downloaded video's file path
-        return yt.title, downloaded_file_path
-
-    except Exception as e:
-        st.error(f"Error: {e}")
-        return None, None
+def play_audio(url):
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'quiet': True,
+        'outtmpl': 'song.%(ext)s',
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info_dict = ydl.extract_info(url, download=True)
+        audio_file = ydl.prepare_filename(info_dict)
+    return audio_file
 
 # Streamlit App
-st.title("UNIVERSAL STUDIOS")
+st.title("YouTube Audio Player")
 
-# Input YouTube link
-link = st.text_input("Enter the YouTube video link:")
-
-if st.button("Download and Play"):
-    if link:
-        video_title, downloaded_file = download_video_from_link(link)
-        if downloaded_file:
-            st.success(f"Video saved to {downloaded_file}")
-            mp4 = open(downloaded_file, 'rb').read()
-            data_url = "data:video/mp4;base64," + base64.b64encode(mp4).decode()
-            st.video(data_url)
-            os.remove(downloaded_file)  # Clean up the downloaded file
-        else:
-            st.error("Failed to download the video.")
+query = st.text_input("Enter the song name:")
+if query:
+    results = search_youtube(query)
+    
+    if results:
+        st.write("Top 8 results:")
+        for i, result in enumerate(results):
+            st.write(f"{i + 1}. {result['title']}")
+        
+        choice = st.slider("Select the song number to play", 1, len(results), 1)
+        selected_url = results[choice - 1]['webpage_url']
+        
+        if st.button("Play Audio"):
+            audio_file = play_audio(selected_url)
+            st.audio(audio_file)
     else:
-        st.error("Please enter a valid YouTube link.")
+        st.write("No results found.")

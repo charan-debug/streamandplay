@@ -1,54 +1,44 @@
-import streamlit as st
-import yt_dlp
-import os
-from pathlib import Path
 
-def download_youtube_video(url, output_path='downloads'):
-    """Download a YouTube video and return its path."""
-    # Ensure the output directory exists
-    os.makedirs(output_path, exist_ok=True)
-    
-    ydl_opts = {
-        'format': 'bestvideo[height<=720]+bestaudio/best[height<=720]',
-        'outtmpl': f'{output_path}/%(title)s.%(ext)s',
-        'merge_output_format': 'mp4',
-    }
+import streamlit as st
+from pytube import YouTube
+import base64
+import os
+
+# Function to download a video from a YouTube link
+def download_video_from_link(link):
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(url, download=True)
-            video_title = info_dict.get('title', 'Downloaded Video')
-            video_file = Path(ydl.prepare_filename(info_dict)).with_suffix('.mp4')
-            return video_file, f"Video '{video_title}' downloaded successfully!"
+        # Create a YouTube object
+        yt = YouTube(link)
+
+        # Get the highest resolution stream (you can modify this)
+        stream = yt.streams.get_highest_resolution()
+
+        # Download the video
+        downloaded_file_path = stream.download(filename='downloaded_video.mp4')
+
+        # Return the downloaded video's file path
+        return yt.title, downloaded_file_path
+
     except Exception as e:
-        return None, f"An error occurred: {e}"
+        st.error(f"Error: {e}")
+        return None, None
 
 # Streamlit App
-st.title("YouTube Video Downloader & Player")
+st.title("UNIVERSAL STUDIOS")
 
-# Input for YouTube URL
-video_url = st.text_input("Enter the YouTube video URL:")
+# Input YouTube link
+link = st.text_input("Enter the YouTube video link:")
 
-# Download and Play Button
 if st.button("Download and Play"):
-    if video_url.strip() == "":
-        st.error("Please enter a valid YouTube video URL.")
+    if link:
+        video_title, downloaded_file = download_video_from_link(link)
+        if downloaded_file:
+            st.success(f"Video saved to {downloaded_file}")
+            mp4 = open(downloaded_file, 'rb').read()
+            data_url = "data:video/mp4;base64," + base64.b64encode(mp4).decode()
+            st.video(data_url)
+            os.remove(downloaded_file)  # Clean up the downloaded file
+        else:
+            st.error("Failed to download the video.")
     else:
-        with st.spinner("Downloading..."):
-            video_path, message = download_youtube_video(video_url)
-            if video_path:
-                st.success(message)
-                
-                # Display the video in the Streamlit app
-                st.video(str(video_path))
-                
-                # Provide a download link
-                with open(video_path, "rb") as video_file:
-                    video_bytes = video_file.read()
-                    st.download_button(
-                        label="Download Video",
-                        data=video_bytes,
-                        file_name=video_path.name,
-                        mime="video/mp4"
-                    )
-            else:
-                st.error(message)
+        st.error("Please enter a valid YouTube link.")
